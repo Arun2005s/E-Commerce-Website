@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gengear - Cart</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container-fluid py-4 bg-secondary text-white text-center">
+        <div class="image">
+          <img src="logo.png" alt="LOGO"  class="rounded" style="position: absolute;padding: -50px;right: 1080px;width:100px;height:100px; ;"></div>
+          <h1><b>GENGEAR</b></h1>
+          <p>All in one!</p>
+        </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Gengear</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="shop.html">Shop</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="cart.html">Cart</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <section class="container py-5">
+        <h2 class="text-center">Your Shopping Cart</h2>
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="cart-items">
+            </tbody>
+        </table>
+        <div class="text-end">
+            <h4>Total: ₹<span id="cart-total">0</span></h4>
+            <button class="btn btn-success" id="checkout-btn">Checkout</button>
+            <button class="btn btn-danger" id="clear-cart">Clear Cart</button>
+        </div>
+    </section>
+    <footer class="bg-dark text-white text-center py-3">
+        <p>&copy; 2025 Gengear. All Rights Reserved.</p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const cartItemsContainer = document.getElementById("cart-items");
+            const cartTotal = document.getElementById("cart-total");
+
+            function updateCartUI() {
+                cartItemsContainer.innerHTML = "";
+                let total = 0;
+
+                cart.forEach((item, index) => {
+                    let itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>₹${item.price}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary decrease" data-index="${index}">-</button>
+                            <span class="px-2">${item.quantity}</span>
+                            <button class="btn btn-sm btn-outline-secondary increase" data-index="${index}">+</button>
+                        </td>
+                        <td>₹${itemTotal}</td>
+                        <td><button class="btn btn-danger btn-sm remove-item" data-index="${index}">Remove</button></td>
+                    `;
+                    cartItemsContainer.appendChild(row);
+                });
+
+                cartTotal.textContent = total.toFixed(2);
+                localStorage.setItem("cart", JSON.stringify(cart));
+            }
+
+            cartItemsContainer.addEventListener("click", function (event) {
+                if (event.target.classList.contains("increase")) {
+                    let index = event.target.getAttribute("data-index");
+                    cart[index].quantity++;
+                } else if (event.target.classList.contains("decrease")) {
+                    let index = event.target.getAttribute("data-index");
+                    if (cart[index].quantity > 1) {
+                        cart[index].quantity--;
+                    }
+                } else if (event.target.classList.contains("remove-item")) {
+                    let index = event.target.getAttribute("data-index");
+                    cart.splice(index, 1);
+                }
+                updateCartUI();
+            });
+
+            document.getElementById("clear-cart").addEventListener("click", function () {
+                localStorage.removeItem("cart");
+                cart = [];
+                updateCartUI();
+            });
+
+            document.getElementById("checkout-btn").addEventListener("click", function () {
+                if (cart.length === 0) {
+                    alert("Your cart is empty!");
+                } else {
+                    alert("Thank you for your purchase!");
+                    localStorage.removeItem("cart");
+                    cart = [];
+                    updateCartUI();
+                }
+            });
+
+            updateCartUI();
+        });
+    </script>
+</body>
+</html>
